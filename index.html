@@ -5,8 +5,20 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Jon Salud CV</title>
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
     <style type="text/css">
+        body {
+        padding: 25px;
+        background-color: white;
+        color: black;
+        font-size: 25px;
+        }
+
+        .dark-mode {
+        background-color: black;
+        color: white;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,36 +26,36 @@
         }
 
         h1 {
-            color: #0A0000;
+            /* color: #0A0000; */
             font-family: "Trebuchet MS", sans-serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
-            font-size: 11pt;
+            font-size: 12pt;
         }
 
         .p,
         p {
-            color: #0A0000;
+            /* color: #0A0000; */
             font-family: MingLiU_HKSCS, serif;
             font-style: normal;
             font-weight: normal;
             text-decoration: none;
-            font-size: 10pt;
+            font-size: 12pt;
             margin: 0pt;
         }
 
         h2 {
-            color: #0A0000;
+            /* color: #0A0000; */
             font-family: "Trebuchet MS", sans-serif;
             font-style: normal;
             font-weight: bold;
             text-decoration: none;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         .s1 {
-            color: #0A0000;
+            /* color: #0A0000; */
             font-family: "Trebuchet MS", sans-serif;
             font-style: italic;
             font-weight: normal;
@@ -57,16 +69,16 @@
             font-style: normal;
             font-weight: normal;
             text-decoration: none;
-            font-size: 10pt;
+            font-size: 12pt;
         }
 
         .s3 {
-            color: #0A0000;
+            /* color: #0A0000; */
             font-family: MingLiU_HKSCS, serif;
             font-style: normal;
             font-weight: normal;
             text-decoration: none;
-            font-size: 11pt;
+            font-size: 12pt;
         }
 
         .a {
@@ -75,7 +87,7 @@
             font-style: normal;
             font-weight: normal;
             text-decoration: none;
-            font-size: 11pt;
+            font-size: 12pt;
         }
 
         table {
@@ -94,11 +106,21 @@
 </head>
 
 <body style="padding-left: 10%; padding-right: 10%;">
+    <button style="margin-right:auto; margin-left:auto;" onclick="myFunction()">Toggle Dark Mode</button>
+    <br />
     <p style="padding-left: 0pt;text-indent: 0pt;line-height: 50pt;text-align: center;">
-        <span style=" color: #076AFF; font-family: sans-serif; font-style: normal; font-weight:normal; text-decoration: none; font-size:36px;">
+        <span style=" color: #5c9dff; font-family: sans-serif; font-style: normal; font-weight:normal; text-decoration: none; font-size:36px;">
             Jon Salud
         </span>
     </p>
+
+    <script>
+    function myFunction() {
+       var element = document.body;
+       element.classList.toggle("dark-mode");
+    }
+    </script>
+
     <table style="margin-right:auto; margin-left:auto; border:none">
         <tr>
             <td style="border:none" >
@@ -107,7 +129,7 @@
                     src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA8klEQVQYlXWPsUoDYRCEv/39STyUJGCRQsFCohAsBMHS1iaFiO+gFj6AWNjZ+AAWgq2IhdjoA4iCYCOIiCFoKsVI0OCReCE3NnoWXhaG2VlmYJb5HV1ObKreDFWQRD/46qsmP9rkP78YLgS802fs6U3j7S7BVJF7gUmYGYpjnMANGD3niK28pQeA4zUqp7dU9s5ZXShzdnLDUqfLYDHHy9EKi77WoAQQ9cg0Q0ZqDUr7F4wNZQlj4e6emV4/YNel9Vme5fBxm9GrDWYAruvMpRrzAa2MJ8p6IoBWh1yqMe1pr99V/0lKNN6SzB/pR5klZ74Ba2xlwAyOEe4AAAAASUVORK5CYIIA" />
             </td>
             <td  style="border:none"><a href="https://www.linkedin.com/in/jonsalud/" >
-                    <p style="text-indent: 10pt;line-height: 11pt;text-align: left;">
+                    <p style="text-indent: 10pt;line-height: 16pt;text-align: left; color: #717171; font-size: 15pt;">
                         www.linkedin.com/in/jonsalud/
                     </p>
                 </a>
@@ -119,7 +141,7 @@
                     src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAJCAYAAAAGuM1UAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABaklEQVQYlX2QX0vTcRyFn8/I3yQQLWlimzZoZgjaje+hLiIw/cU0w6SfxPYWLILexNRpiGShOJuIUK+hO2mEirp06w/iXESEot/Thbv23JyL5+Y8xz7vqnd4hsVihTgXpDvKeuYxQejprObnA/y2K9qvMQMM1RroaqWQGSJIZsmFtg8sMTzDwtJzexBtpAwIgQwA3Wph482InvhT5MtVYiGA3UNuJrPkllPcv95EGUMG6oiwOTeqwb4Maz9+E0Vg4bRzYAZS4hpbb59Z0p8kX1+nf3OjNuhPkS8d0V6bK8JpOS/lXOdLbX/84u51vdLm1+/u9npJPR0vVPxU0N3EuCt6KefCKcnCaSnezM7CGA/7J1gtVYl5lzhG2MkZXvtVvi2O0fcoy4e9CvFQa6PK7wL8gUmtlKrEADs5pf74VB5gexVuJKfJvQ80EGnQT7vzWoXDvzQf/FEEmZ0fCZJkBud+qKWBX02XOfoPXBebcdT8AAUAAAAASUVORK5CYIIA" />
             </td>
             <td style="border:none"><a href="mailto:me@jonsalud.net" target="_blank">                                
-                    <p style="text-indent: 10pt;line-height: 11pt;text-align: left;">
+                    <p style="text-indent: 10pt;line-height: 16pt;text-align: left; color: #717171; font-size: 15pt;">
                         me@jonsalud.net
                     </p>
                 </a>
@@ -132,7 +154,7 @@
             </td>
             <td style="border:none" >
                 <a href="Tel: +64-21-02970827" target="_blank">                                
-                    <p style="text-indent: 10pt;line-height: 11pt;text-align: left;">
+                    <p style="text-indent: 10pt;line-height: 16pt;text-align: left; color: #717171; font-size: 15pt;">
                         02102970827
                     </p>
                 </a>
@@ -144,7 +166,7 @@
             </td>
             <td style="border:none" >
                 <a href="https://goo.gl/maps/BQ4jhpRCx8TRiz1g6" target="_blank">                                
-                    <p style="text-indent: 10pt;line-height: 11pt;text-align: left;">
+                    <p style="text-indent: 10pt;line-height: 16pt;text-align: left; color: #717171; font-size: 15pt;">
                         Kumeu, 0810 Auckland, NZ
                     </p>
                 </a>
