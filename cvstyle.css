@@ -24,6 +24,14 @@ h1 {
     font-size: 12pt;
 }
 
+.heading1 {
+    padding-top: 0pt;
+    padding-bottom: 2pt;
+    padding-left: 6pt;
+    text-indent: 0pt;
+    text-align: left;
+}
+
 p {
     font-family: monospace;
     font-style: normal;
@@ -74,6 +82,47 @@ h2 {
     font-size: 12pt;
 }
 
+.job {
+    padding-top: 10pt;
+    padding-left: 14pt;
+    text-indent: -8pt;
+    text-align: left;
+}
+
+.job-items {
+    padding-left: 50px;
+    text-indent: -1.3em;
+    text-align: left;
+}
+
+.sub-job-items {
+    padding-left: 100px;
+    text-indent: -1.3em;
+    text-align: left;
+}
+
+.job-resp {
+    padding-top:5pt;
+    padding-left:14pt;
+    text-indent:0pt;
+    text-align: left;
+}
+
+.cert-title {
+    padding-top: 8pt;
+    padding-left: 6pt;
+    text-indent: 0pt;
+    text-align: left;
+}
+
+.cert-detail {
+    padding-top: 2pt;
+    padding-left: 10pt;
+    text-indent: 0pt;
+    text-align: left;
+    font-style: italic;
+}
+
 table {
     border-collapse: collapse;
     table-layout:auto;
@@ -91,29 +140,38 @@ table td {
     text-align: right;
 }
 
+.connect-details {
+    text-indent: 10pt;
+    line-height: 16pt;
+    text-align: left; 
+    color: #717171; 
+    font-size: 15pt;
+}
+
+/* Toggle switch */
 .switch {
-position: relative;
-display: inline-block;
-width: 60px;
-height: 34px;
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
 }
 
 .switch input { 
-opacity: 0;
-width: 0;
-height: 0;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 .slider {
-position: absolute;
-cursor: pointer;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background-color: rgb(46, 46,46);
--webkit-transition: .4s;
-transition: .4s;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(46, 46,46);
+    -webkit-transition: .4s;
+    transition: .4s;
 }
 
 .slider:before {
