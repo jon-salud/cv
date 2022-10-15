@@ -21,7 +21,7 @@ h1 {
     font-style: normal;
     font-weight: bold;
     text-decoration: none;
-    font-size: 12pt;
+    font-size: 14pt;
 }
 
 .heading1 {
@@ -31,6 +31,9 @@ h1 {
     text-indent: 0pt;
     text-align: left;
 }
+
+hr { margin-top: 2px; 
+    margin-bottom: 10px }
 
 p {
     font-family: monospace;
