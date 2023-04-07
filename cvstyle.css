@@ -1,13 +1,13 @@
 body {
 padding: 25px;
-background-color: white;
-color: rgb(46, 46, 46);
+background-color: rgb(46, 46, 46);
+color: white; 
 font-size: 25px;
 }
 
 .dark-mode {
-background-color: rgb(46, 46, 46);
-color: white;
+background-color:white;
+color:  rgb(46, 46, 46);
 }
 
 * {
@@ -175,6 +175,7 @@ table td {
     background-color: rgb(46, 46,46);
     -webkit-transition: .4s;
     transition: .4s;
+    box-shadow: 0 0 5px rgb(4, 172, 238);    
 }
 
 .slider:before {
@@ -187,6 +188,7 @@ table td {
     background-color: white;
     -webkit-transition: .4s;
     transition: .4s;
+
 }
 
 input:checked + .slider {
@@ -194,7 +196,7 @@ input:checked + .slider {
 }
 
 input:focus + .slider {
-    box-shadow: 0 0 5px yellow;    
+    box-shadow: 0 0 5px rgb(4, 172, 238);    
 }
 
 input:checked + .slider:before {
