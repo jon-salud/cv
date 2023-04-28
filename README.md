@@ -4,15 +4,15 @@ A seasoned Software Test Automation Professional with a proven track record of d
 
 ## TECHNICAL SKILLS
 
-**Test Automation**: Playwright, Cypress, Katalon, TestCafe, Selenium
-Leadership & Management**: QA/Test Management, Project Management, Release Management, Process Improvements, Line Management, Mentoring, Career Development
-DevOps**: Champion, Continuous Integration, Continuous Delivery
-**Performance Testing**: JMeter
-**Agile**: Scrum, Kanban
-**Testing Types**: Regression, System Integration, UI, Exploratory, Black Box, API, Smoke, Sanity, UAT
-**Testing Tools**: JIRA, Azure DevOps, Confluence, Test Manager, AIO, Mantis
-**SQL**: Databases, Tables, Views, Stored Procedures
-**Cloud Computing**: AWS, Azure
+**Test Automation**: Playwright, Cypress, Katalon, TestCafe, Selenium\
+**Leadership & Management**: QA/Test Management, Project Management, Release Management, Process Improvements, Line Management, Mentoring, Career Development\
+**DevOps**: Champion, Continuous Integration, Continuous Delivery\
+**Performance Testing**: JMeter\
+**Agile**: Scrum, Kanban\
+**Testing Types**: Regression, System Integration, UI, Exploratory, Black Box, API, Smoke, Sanity, UAT\
+**Testing Tools**: JIRA, Azure DevOps, Confluence, Test Manager, AIO, Mantis\
+**SQL**: Databases, Tables, Views, Stored Procedures\
+**Cloud Computing**: AWS, Azure\
 
 ## PROFESSIONAL EXPERIENCE
 
