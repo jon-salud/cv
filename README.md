@@ -31,6 +31,13 @@ README.md   # this file
 1. Edit `assets/data/cv-data.json` to update contact details, skills, experience, etc.
 2. Refresh the browser to see changes reflected immediately.
 
+### In-browser editor
+
+- Scroll to the bottom of the page and click `Edit CV`.
+- Sign in with username `admin` and password `changeme`.
+- Adjust the JSON in the editor, then press **Save changes**.
+- Changes are stored in your browser’s `localStorage`; use **Reset to defaults** to discard them.
+
 No frameworks or build tooling are required; everything runs in the browser.
 
 ## Tests

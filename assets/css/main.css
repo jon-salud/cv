@@ -44,6 +44,13 @@ h1 {
     margin: 0;
 }
 
+.heading-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
 .btn-link {
     border: none;
     background: none;
@@ -61,7 +68,6 @@ h1 {
 }
 
 .heading-row .btn-link {
-    margin-left: auto;
     align-self: center;
 }
 
@@ -152,6 +158,295 @@ body.dark-mode .experience-item {
     border-color: rgba(0, 0, 0, 0.2);
 }
 
+.editor-controls {
+    margin-top: 20pt;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.editor-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 999;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.editor-controls .btn-primary {
+    padding: 6pt 12pt;
+    border-radius: 4px;
+    border: 1px solid #5c9dff;
+    background: transparent;
+    color: #5c9dff;
+    font-family: monospace;
+    font-size: 11pt;
+    cursor: pointer;
+}
+
+.editor-controls .btn-primary:hover,
+.editor-controls .btn-primary:focus {
+    background: rgba(92, 157, 255, 0.1);
+}
+
+.editor-panel {
+    width: min(720px, 90vw);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 18pt;
+    background-color: rgba(6, 12, 20, 0.92);
+    box-shadow: 0 18px 32px rgba(0, 0, 0, 0.45);
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.editor-panel h2 {
+    margin-bottom: 8pt;
+}
+
+
+.editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12pt;
+}
+
+.editor-section {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 12pt;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.editor-section-target {
+    border-color: rgba(92, 157, 255, 0.7);
+    box-shadow: 0 0 0 1px rgba(92, 157, 255, 0.35);
+}
+
+.editor-section-title {
+    margin: 0 0 8pt;
+    font-size: 14pt;
+    font-family: monospace;
+    letter-spacing: 0.5pt;
+}
+
+.editor-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4pt;
+    margin-top: 8pt;
+}
+
+.editor-field:first-of-type {
+    margin-top: 0;
+}
+
+.editor-label {
+    font-size: 9pt;
+    letter-spacing: 0.5pt;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.editor-input {
+    width: 100%;
+    padding: 6pt 8pt;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(0, 0, 0, 0.4);
+    color: inherit;
+    font-family: monospace;
+    font-size: 10pt;
+    box-sizing: border-box;
+}
+
+.editor-input:focus {
+    outline: none;
+    border-color: #5c9dff;
+    box-shadow: 0 0 0 1px rgba(92, 157, 255, 0.4);
+}
+
+textarea.editor-input {
+    resize: vertical;
+}
+
+.editor-collection,
+.editor-subcollection {
+    display: flex;
+    flex-direction: column;
+    gap: 12pt;
+    margin-top: 12pt;
+}
+
+.editor-item,
+.editor-subitem {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 12pt;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.editor-subheading {
+    margin-top: 12pt;
+    margin-bottom: 4pt;
+    font-size: 11pt;
+    letter-spacing: 0.5pt;
+}
+
+.editor-add,
+.editor-remove {
+    margin-top: 12pt;
+    padding: 6pt 12pt;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 10pt;
+    align-self: flex-start;
+}
+
+.editor-add:hover,
+.editor-add:focus,
+.editor-remove:hover,
+.editor-remove:focus {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.editor-add {
+    border-color: rgba(92, 157, 255, 0.7);
+    color: #5c9dff;
+}
+
+.editor-remove {
+    border-color: rgba(255, 107, 107, 0.7);
+    color: #ff6b6b;
+}
+
+.editor-add-nested {
+    margin-top: 8pt;
+}
+
+.editor-subcollection .editor-remove {
+    margin-top: 8pt;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8pt;
+    margin-top: 10pt;
+}
+
+.editor-actions button {
+    padding: 6pt 12pt;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-family: monospace;
+}
+
+.editor-actions button:hover,
+.editor-actions button:focus {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.editor-message {
+    margin-top: 8pt;
+    font-size: 10pt;
+}
+
+.editor-message.error {
+    color: #ff6b6b;
+}
+
+.editor-message.success {
+    color: #55d6a3;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.dark-mode .editor-overlay {
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+.dark-mode .editor-panel {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.2);
+    color: rgb(34, 34, 34);
+}
+
+.dark-mode .editor-controls .btn-primary {
+    border-color: rgb(46, 46, 46);
+    color: rgb(46, 46, 46);
+}
+
+.dark-mode .editor-controls .btn-primary:hover,
+.dark-mode .editor-controls .btn-primary:focus {
+    background: rgba(46, 46, 46, 0.1);
+}
+
+.dark-mode .editor-section {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .editor-section-target {
+    border-color: rgba(43, 95, 167, 0.8);
+    box-shadow: 0 0 0 1px rgba(43, 95, 167, 0.35);
+}
+
+.dark-mode .editor-item,
+.dark-mode .editor-subitem {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .editor-label {
+    color: rgba(46, 46, 46, 0.7);
+}
+
+.dark-mode .editor-input {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: rgb(46, 46, 46);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .editor-add,
+.dark-mode .editor-remove {
+    border-color: rgba(46, 46, 46, 0.3);
+    color: rgb(46, 46, 46);
+}
+
+.dark-mode .editor-remove {
+    border-color: rgba(255, 107, 107, 0.6);
+    color: #c44b4b;
+}
+
+.dark-mode .editor-add {
+    border-color: rgba(92, 157, 255, 0.6);
+    color: #2b5fa7;
+}
+
+.dark-mode .editor-add:hover,
+.dark-mode .editor-add:focus,
+.dark-mode .editor-remove:hover,
+.dark-mode .editor-remove:focus {
+    background: rgba(46, 46, 46, 0.08);
+}
+
+.dark-mode .editor-actions button {
+    border-color: rgba(0, 0, 0, 0.2);
+    color: rgb(46, 46, 46);
+}
 .job-items {
     padding-left: 50px;
     text-indent: -1.3em;

@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "node tests/validate-data.js",
-    "test:ui": "node --test tests/ui-smoke.js",
+    "test": "npm run test:data && npm run test:unit",
+    "test:data": "node tests/validate-data.js",
+    "test:unit": "node --test tests/unit/editor.test.js",
+    "test:ui": "node --test tests/ui-smoke.js tests/ui/editor-modal.test.js",
     "test:all": "npm run test && npm run test:ui"
   }
 }
