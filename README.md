@@ -38,7 +38,9 @@ No frameworks or build tooling are required; everything runs in the browser.
 Basic validation checks ensure the JSON data stays well-formed:
 
 ```bash
-npm test
+npm test        # structural JSON validation
+npm run test:ui # static UI smoke checks
+npm run test:all
 ```
 
-The test suite verifies the presence of required sections (profile, skills, experiences, etc.) and ensures that arrays and strings contain useful data.
+The JSON validation ensures the CV data stays complete, while the UI smoke check confirms the "Professional Experiences" section renders the expand/collapse control.

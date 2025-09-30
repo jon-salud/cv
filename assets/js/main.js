@@ -46,6 +46,8 @@ function renderCv(data) {
    appendSection(root, 'EDUCATION', () => createEducation(data.education));
    appendSection(root, 'LANGUAGES', () => createLanguages(data.languages));
    appendSection(root, 'REFERENCES', () => createReferences(data.references));
+
+   initExperienceControls();
 }
 
 function renderError(message) {
@@ -197,10 +199,24 @@ function appendSection(root, title, builder) {
 }
 
 function createSectionHeading(title) {
-   return createElement('h1', {
+   const wrapper = createElement('div', { className: 'heading-row' });
+   const heading = createElement('h1', {
       className: 'heading1',
       text: title
    });
+   wrapper.appendChild(heading);
+
+   const normalizedTitle = (title || '').toLowerCase();
+   if (normalizedTitle.includes('professional experience')) {
+      const button = createElement('button', {
+         className: 'btn-link',
+         text: 'Expand all',
+         attrs: { type: 'button', id: 'experience-toggle' }
+      });
+      wrapper.appendChild(button);
+   }
+
+   return wrapper;
 }
 
 function createSummary(summaryText = '') {
@@ -330,6 +346,29 @@ function createExperienceEntry(experience = {}) {
 
    details.appendChild(contentWrapper);
    return details;
+}
+
+function initExperienceControls() {
+   const toggle = document.getElementById('experience-toggle');
+   if (!toggle) {
+      return;
+   }
+
+   toggle.textContent = 'Expand all';
+
+   toggle.addEventListener('click', () => {
+      const items = Array.from(document.querySelectorAll('.experience-item'));
+      if (!items.length) {
+         return;
+      }
+
+      const shouldExpand = items.some((item) => !item.open);
+      items.forEach((item) => {
+         item.open = shouldExpand;
+      });
+
+      toggle.textContent = shouldExpand ? 'Collapse all' : 'Expand all';
+   });
 }
 
 function createExperienceSectionContent(section = {}) {
