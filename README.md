@@ -16,7 +16,7 @@ http://localhost:8000/
 
 ## Project Structure
 
-```
+```bash
 assets/
   css/      # stylesheets
   js/       # front-end scripts
