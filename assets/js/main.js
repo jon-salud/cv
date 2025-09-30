@@ -642,7 +642,7 @@ function populateEditorPanel(panel, targetSection) {
    if (panel) {
       panel.dataset.activeEditorSection = targetSection || '';
    }
-   const heading = panel.querySelector('.editor-panel h2');
+   const heading = panel.querySelector('h2');
    if (heading) {
       heading.textContent = targetSection
          ? `Edit ${getSectionLabel(targetSection)}`
@@ -1229,6 +1229,28 @@ function readLanguages(form) {
       return { present: false, value: null };
    }
    return { present: true, value: splitLines(textarea.value) };
+}
+
+if (typeof window !== 'undefined') {
+   window.__cvTestHooks = {
+      createEditorPanel,
+      handleEditClick,
+      populateEditorPanel,
+      collectEditorData,
+      readSummary,
+      readSkills,
+      readExperiences,
+      readCertifications,
+      readEducation,
+      readLanguages,
+      getSectionLabel,
+      createSummaryEditor,
+      createSkillsEditor,
+      createExperiencesEditor,
+      createCertificationsEditor,
+      createEducationEditor,
+      createLanguagesEditor
+   };
 }
 
 function getInputValue(root, selector) {
