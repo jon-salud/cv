@@ -55,12 +55,12 @@ function renderCv(data) {
    root.innerHTML = '';
    root.appendChild(buildHeader(window.cvData.profile));
 
-   appendSection(root, 'WHO AM I', () => createSummary(window.cvData.summary));
-   appendSection(root, 'SKILLS', () => createSkills(window.cvData.skills));
-   appendSection(root, 'PROFESSIONAL EXPERIENCES', () => createExperienceSection(window.cvData.experiences));
-   appendSection(root, 'CERTIFICATIONS', () => createCertifications(window.cvData.certifications));
-   appendSection(root, 'EDUCATION', () => createEducation(window.cvData.education));
-   appendSection(root, 'LANGUAGES', () => createLanguages(window.cvData.languages));
+   appendSection(root, 'WHO AM I', () => createSummary(window.cvData.summary), 'summary');
+   appendSection(root, 'SKILLS', () => createSkills(window.cvData.skills), 'skills');
+   appendSection(root, 'PROFESSIONAL EXPERIENCES', () => createExperienceSection(window.cvData.experiences), 'experiences');
+   appendSection(root, 'CERTIFICATIONS', () => createCertifications(window.cvData.certifications), 'certifications');
+   appendSection(root, 'EDUCATION', () => createEducation(window.cvData.education), 'education');
+   appendSection(root, 'LANGUAGES', () => createLanguages(window.cvData.languages), 'languages');
    appendSection(root, 'REFERENCES', () => createReferences(window.cvData.references));
 
    renderEditorControls(root);
@@ -204,9 +204,9 @@ function createContactRow(contact) {
    return row;
 }
 
-function appendSection(root, title, builder) {
+function appendSection(root, title, builder, editorTarget) {
    const fragment = document.createDocumentFragment();
-   fragment.appendChild(createSectionHeading(title));
+   fragment.appendChild(createSectionHeading(title, editorTarget));
    fragment.appendChild(createRule());
    const content = builder ? builder() : null;
    if (content) {
@@ -216,7 +216,7 @@ function appendSection(root, title, builder) {
    root.appendChild(fragment);
 }
 
-function createSectionHeading(title) {
+function createSectionHeading(title, editorTarget) {
    const wrapper = createElement('div', { className: 'heading-row' });
    const heading = createElement('h1', {
       className: 'heading1',
@@ -225,13 +225,28 @@ function createSectionHeading(title) {
    wrapper.appendChild(heading);
 
    const normalizedTitle = (title || '').toLowerCase();
+   const controls = createElement('div', { className: 'heading-controls' });
    if (normalizedTitle.includes('professional experience')) {
-      const button = createElement('button', {
+      const expand = createElement('button', {
          className: 'btn-link',
          text: 'Expand all',
          attrs: { type: 'button', id: 'experience-toggle' }
       });
-      wrapper.appendChild(button);
+      controls.appendChild(expand);
+   }
+
+   if (editorTarget) {
+      const edit = createElement('button', {
+         className: 'btn-link section-edit-link',
+         text: 'Edit',
+         attrs: { type: 'button', 'data-editor-target': editorTarget }
+      });
+      edit.addEventListener('click', () => handleHeadingEditClick(editorTarget));
+      controls.appendChild(edit);
+   }
+
+   if (controls.childNodes.length) {
+      wrapper.appendChild(controls);
    }
 
    return wrapper;
@@ -545,14 +560,23 @@ function renderEditorControls(root) {
 }
 
 function createEditorPanel() {
+   const overlay = createElement('div', {
+      className: 'editor-overlay hidden',
+      attrs: { id: 'cv-editor-overlay' }
+   });
+
    const panel = createElement('div', {
-      className: 'editor-panel hidden',
+      className: 'editor-panel',
       attrs: { id: 'cv-editor-panel' }
    });
 
    const heading = createElement('h2', { text: 'Edit CV Data' });
-   const textarea = createElement('textarea', {
-      attrs: { id: 'cv-editor-text', spellcheck: 'false' }
+   const form = createElement('form', {
+      className: 'editor-form',
+      attrs: { id: 'cv-editor-form' }
+   });
+   form.addEventListener('submit', (event) => {
+      event.preventDefault();
    });
    const actions = createElement('div', { className: 'editor-actions' });
    const save = createElement('button', { text: 'Save changes' });
@@ -563,51 +587,683 @@ function createEditorPanel() {
       attrs: { id: 'editor-message' }
    });
 
-   save.addEventListener('click', () => handleEditorSave(panel));
-   reset.addEventListener('click', () => handleEditorReset(panel));
-   cancel.addEventListener('click', () => hideEditorPanel(panel));
+   save.addEventListener('click', () => handleEditorSave(overlay));
+   reset.addEventListener('click', () => handleEditorReset(overlay));
+   cancel.addEventListener('click', () => hideEditorPanel(overlay));
 
    actions.appendChild(save);
    actions.appendChild(reset);
    actions.appendChild(cancel);
 
    panel.appendChild(heading);
-   panel.appendChild(textarea);
+   panel.appendChild(form);
    panel.appendChild(actions);
    panel.appendChild(message);
 
-   return panel;
+   overlay.appendChild(panel);
+
+   overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) {
+         hideEditorPanel(overlay);
+      }
+   });
+
+   return overlay;
 }
 
-function handleEditClick(panel) {
+function handleHeadingEditClick(targetSection) {
+   const panel = document.getElementById('cv-editor-overlay');
+   if (!panel) {
+      return;
+   }
+   handleEditClick(panel, targetSection);
+}
+
+function handleEditClick(panel, targetSection = null) {
    if (!isEditorAuthorized() && !authorizeEditor()) {
       return;
    }
 
-   populateEditorPanel(panel);
+   populateEditorPanel(panel, targetSection);
    panel.classList.remove('hidden');
+   focusEditorSection(panel, targetSection);
 }
 
-function populateEditorPanel(panel) {
-   const textarea = panel.querySelector('#cv-editor-text');
+function populateEditorPanel(panel, targetSection) {
+   const form = panel.querySelector('#cv-editor-form');
    const message = panel.querySelector('#editor-message');
-   textarea.value = JSON.stringify(window.cvData, null, 2);
+   if (form) {
+      buildEditorForm(form, window.cvData || {}, targetSection);
+   }
    if (message) {
       message.textContent = '';
       message.classList.remove('error', 'success');
    }
+   if (panel) {
+      panel.dataset.activeEditorSection = targetSection || '';
+   }
+   const heading = panel.querySelector('.editor-panel h2');
+   if (heading) {
+      heading.textContent = targetSection
+         ? `Edit ${getSectionLabel(targetSection)}`
+         : 'Edit CV Data';
+   }
+}
+
+function buildEditorForm(form, data, targetSection) {
+   const working = data ? cloneData(data) : {};
+   form.innerHTML = '';
+
+   const sections = [
+      { key: 'summary', node: createSummaryEditor(working.summary) },
+      { key: 'skills', node: createSkillsEditor(working.skills) },
+      { key: 'experiences', node: createExperiencesEditor(working.experiences) },
+      { key: 'certifications', node: createCertificationsEditor(working.certifications) },
+      { key: 'education', node: createEducationEditor(working.education) },
+      { key: 'languages', node: createLanguagesEditor(working.languages) }
+   ];
+
+   sections
+      .filter(({ key, node }) => node && (!targetSection || key === targetSection))
+      .forEach(({ node }) => {
+         form.appendChild(node);
+      });
+}
+
+function getSectionLabel(key) {
+   const labels = {
+      summary: 'Summary',
+      skills: 'Skills',
+      experiences: 'Professional Experiences',
+      certifications: 'Certifications',
+      education: 'Education',
+      languages: 'Languages'
+   };
+   return labels[key] || 'CV Data';
+}
+
+function focusEditorSection(panel, targetSection) {
+   if (!targetSection) {
+      return;
+   }
+   const form = panel.querySelector('#cv-editor-form');
+   if (!form) {
+      return;
+   }
+   Array.from(form.querySelectorAll('.editor-section-target')).forEach((node) => {
+      node.classList.remove('editor-section-target');
+   });
+   const section = form.querySelector(`[data-editor-section="${targetSection}"]`);
+   if (!section) {
+      return;
+   }
+   section.classList.add('editor-section-target');
+   requestAnimationFrame(() => {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+   });
+   window.setTimeout(() => {
+      section.classList.remove('editor-section-target');
+   }, 1600);
+}
+
+function createSummaryEditor(summary = '') {
+   const section = createEditorSection('Summary');
+   section.setAttribute('data-editor-section', 'summary');
+   const textarea = createElement('textarea', {
+      className: 'editor-input editor-summary',
+      attrs: { name: 'summary', rows: '5', placeholder: 'Enter summary' }
+   });
+   textarea.value = summary || '';
+   section.appendChild(createField('Summary', textarea));
+   return section;
+}
+
+function createSkillsEditor(skills = []) {
+   const section = createEditorSection('Skills');
+   section.setAttribute('data-editor-section', 'skills');
+   const list = createElement('div', { className: 'editor-collection', attrs: { 'data-collection': 'skills' } });
+   const entries = Array.isArray(skills) && skills.length ? skills : [{}];
+   entries.forEach((skill) => {
+      list.appendChild(createSkillEditorItem(skill));
+   });
+
+   const addButton = createElement('button', {
+      className: 'editor-add',
+      text: 'Add skill',
+      attrs: { type: 'button' }
+   });
+   addButton.addEventListener('click', () => {
+      list.appendChild(createSkillEditorItem());
+   });
+
+   section.appendChild(list);
+   section.appendChild(addButton);
+   return section;
+}
+
+function createSkillEditorItem(skill = {}) {
+   const item = createElement('div', { className: 'editor-item skill-editor' });
+
+   const categoryInput = createElement('input', {
+      className: 'editor-input skill-category',
+      attrs: { type: 'text', placeholder: 'Category' }
+   });
+   categoryInput.value = skill.category || '';
+
+   const itemsTextarea = createElement('textarea', {
+      className: 'editor-input skill-items',
+      attrs: { rows: '3', placeholder: 'One item per line' }
+   });
+   itemsTextarea.value = Array.isArray(skill.items) ? skill.items.join('\n') : '';
+
+   const ratingInput = createElement('input', {
+      className: 'editor-input skill-rating',
+      attrs: { type: 'number', min: '0', max: '5', step: '1', placeholder: '0-5' }
+   });
+   if (skill.rating !== undefined && skill.rating !== null) {
+      ratingInput.value = String(skill.rating);
+   }
+
+   item.appendChild(createField('Category', categoryInput));
+   item.appendChild(createField('Items', itemsTextarea));
+   item.appendChild(createField('Rating', ratingInput));
+   item.appendChild(createRemoveButton(() => item.remove(), 'Remove skill'));
+
+   return item;
+}
+
+function createExperiencesEditor(experiences = []) {
+   const section = createEditorSection('Experiences');
+   section.setAttribute('data-editor-section', 'experiences');
+   const list = createElement('div', { className: 'editor-collection', attrs: { 'data-collection': 'experiences' } });
+   const entries = Array.isArray(experiences) && experiences.length ? experiences : [{}];
+   entries.forEach((experience) => {
+      list.appendChild(createExperienceEditorItem(experience));
+   });
+
+   const addButton = createElement('button', {
+      className: 'editor-add',
+      text: 'Add experience',
+      attrs: { type: 'button' }
+   });
+   addButton.addEventListener('click', () => {
+      list.appendChild(createExperienceEditorItem());
+   });
+
+   section.appendChild(list);
+   section.appendChild(addButton);
+   return section;
+}
+
+function createExperienceEditorItem(experience = {}) {
+   const item = createElement('div', { className: 'editor-item experience-editor' });
+
+   const titleInput = createElement('input', {
+      className: 'editor-input experience-title',
+      attrs: { type: 'text', placeholder: 'Title' }
+   });
+   titleInput.value = experience.title || '';
+
+   const employmentInput = createElement('input', {
+      className: 'editor-input experience-employmentType',
+      attrs: { type: 'text', placeholder: 'Employment type (optional)' }
+   });
+   employmentInput.value = experience.employmentType || '';
+
+   const companyInput = createElement('input', {
+      className: 'editor-input experience-company',
+      attrs: { type: 'text', placeholder: 'Company' }
+   });
+   companyInput.value = experience.company || '';
+
+   const dateInput = createElement('input', {
+      className: 'editor-input experience-dateLabel',
+      attrs: { type: 'text', placeholder: 'Date label' }
+   });
+   dateInput.value = experience.dateLabel || '';
+
+   const locationInput = createElement('input', {
+      className: 'editor-input experience-location',
+      attrs: { type: 'text', placeholder: 'Location' }
+   });
+   locationInput.value = experience.location || '';
+
+   item.appendChild(createField('Title', titleInput));
+   item.appendChild(createField('Employment type', employmentInput));
+   item.appendChild(createField('Company', companyInput));
+   item.appendChild(createField('Date label', dateInput));
+   item.appendChild(createField('Location', locationInput));
+
+   const sectionsHeading = createElement('h4', {
+      className: 'editor-subheading',
+      text: 'Sections'
+   });
+   item.appendChild(sectionsHeading);
+
+   const sectionsList = createElement('div', {
+      className: 'editor-subcollection',
+      attrs: { 'data-collection': 'experience-sections' }
+   });
+   const sections = Array.isArray(experience.sections) && experience.sections.length ? experience.sections : [{}];
+   sections.forEach((section) => {
+      sectionsList.appendChild(createExperienceSectionEditor(section));
+   });
+
+   const addSectionButton = createElement('button', {
+      className: 'editor-add editor-add-nested',
+      text: 'Add section',
+      attrs: { type: 'button' }
+   });
+   addSectionButton.addEventListener('click', () => {
+      sectionsList.appendChild(createExperienceSectionEditor());
+   });
+
+   item.appendChild(sectionsList);
+   item.appendChild(addSectionButton);
+   item.appendChild(createRemoveButton(() => item.remove(), 'Remove experience'));
+
+   return item;
+}
+
+function createExperienceSectionEditor(section = {}) {
+   const container = createElement('div', { className: 'editor-subitem experience-section-editor' });
+
+   const headingInput = createElement('input', {
+      className: 'editor-input experience-section-heading',
+      attrs: { type: 'text', placeholder: 'Heading (optional)' }
+   });
+   headingInput.value = section.heading || '';
+
+   const itemsTextarea = createElement('textarea', {
+      className: 'editor-input experience-section-items',
+      attrs: { rows: '3', placeholder: 'One bullet per line' }
+   });
+   itemsTextarea.value = Array.isArray(section.items) ? section.items.join('\n') : '';
+
+   container.appendChild(createField('Heading', headingInput));
+   container.appendChild(createField('Items', itemsTextarea));
+   container.appendChild(createRemoveButton(() => container.remove(), 'Remove section'));
+
+   return container;
+}
+
+function createCertificationsEditor(certifications = []) {
+   const section = createEditorSection('Certifications');
+   section.setAttribute('data-editor-section', 'certifications');
+   const list = createElement('div', { className: 'editor-collection', attrs: { 'data-collection': 'certifications' } });
+   const entries = Array.isArray(certifications) && certifications.length ? certifications : [{}];
+   entries.forEach((cert) => {
+      list.appendChild(createCertificationEditorItem(cert));
+   });
+
+   const addButton = createElement('button', {
+      className: 'editor-add',
+      text: 'Add certification',
+      attrs: { type: 'button' }
+   });
+   addButton.addEventListener('click', () => {
+      list.appendChild(createCertificationEditorItem());
+   });
+
+   section.appendChild(list);
+   section.appendChild(addButton);
+   return section;
+}
+
+function createCertificationEditorItem(certification = {}) {
+   const item = createElement('div', { className: 'editor-item certification-editor' });
+
+   const titleInput = createElement('input', {
+      className: 'editor-input certification-title',
+      attrs: { type: 'text', placeholder: 'Title' }
+   });
+   titleInput.value = certification.title || '';
+
+   const issuerInput = createElement('input', {
+      className: 'editor-input certification-issuer',
+      attrs: { type: 'text', placeholder: 'Issuer (optional)' }
+   });
+   issuerInput.value = certification.issuer || '';
+
+   const dateInput = createElement('input', {
+      className: 'editor-input certification-date',
+      attrs: { type: 'text', placeholder: 'Date (optional)' }
+   });
+   dateInput.value = certification.date || '';
+
+   item.appendChild(createField('Title', titleInput));
+   item.appendChild(createField('Issuer', issuerInput));
+   item.appendChild(createField('Date', dateInput));
+   item.appendChild(createRemoveButton(() => item.remove(), 'Remove certification'));
+
+   return item;
+}
+
+function createEducationEditor(education = []) {
+   const section = createEditorSection('Education');
+   section.setAttribute('data-editor-section', 'education');
+   const list = createElement('div', { className: 'editor-collection', attrs: { 'data-collection': 'education' } });
+   const entries = Array.isArray(education) && education.length ? education : [{}];
+   entries.forEach((record) => {
+      list.appendChild(createEducationEditorItem(record));
+   });
+
+   const addButton = createElement('button', {
+      className: 'editor-add',
+      text: 'Add education',
+      attrs: { type: 'button' }
+   });
+   addButton.addEventListener('click', () => {
+      list.appendChild(createEducationEditorItem());
+   });
+
+   section.appendChild(list);
+   section.appendChild(addButton);
+   return section;
+}
+
+function createEducationEditorItem(record = {}) {
+   const item = createElement('div', { className: 'editor-item education-editor' });
+
+   const institutionInput = createElement('input', {
+      className: 'editor-input education-institution',
+      attrs: { type: 'text', placeholder: 'Institution' }
+   });
+   institutionInput.value = record.institution || '';
+
+   const degreeInput = createElement('input', {
+      className: 'editor-input education-degree',
+      attrs: { type: 'text', placeholder: 'Degree (optional)' }
+   });
+   degreeInput.value = record.degree || '';
+
+   const datesInput = createElement('input', {
+      className: 'editor-input education-dates',
+      attrs: { type: 'text', placeholder: 'Dates (optional)' }
+   });
+   datesInput.value = record.dates || '';
+
+   const locationInput = createElement('input', {
+      className: 'editor-input education-location',
+      attrs: { type: 'text', placeholder: 'Location (optional)' }
+   });
+   locationInput.value = record.location || '';
+
+   item.appendChild(createField('Institution', institutionInput));
+   item.appendChild(createField('Degree', degreeInput));
+   item.appendChild(createField('Dates', datesInput));
+   item.appendChild(createField('Location', locationInput));
+   item.appendChild(createRemoveButton(() => item.remove(), 'Remove education'));
+
+   return item;
+}
+
+function createLanguagesEditor(languages = []) {
+   const section = createEditorSection('Languages');
+   section.setAttribute('data-editor-section', 'languages');
+   const textarea = createElement('textarea', {
+      className: 'editor-input editor-languages',
+      attrs: { rows: '3', placeholder: 'One language per line', name: 'languages' }
+   });
+   textarea.value = Array.isArray(languages) ? languages.join('\n') : '';
+   section.appendChild(createField('Languages', textarea));
+   return section;
+}
+
+function createEditorSection(title) {
+   const section = createElement('section', { className: 'editor-section' });
+   const heading = createElement('h3', {
+      className: 'editor-section-title',
+      text: title
+   });
+   section.appendChild(heading);
+   return section;
+}
+
+function createField(labelText, control) {
+   const wrapper = createElement('label', { className: 'editor-field' });
+   const label = createElement('span', {
+      className: 'editor-label',
+      text: labelText
+   });
+   wrapper.appendChild(label);
+   wrapper.appendChild(control);
+   return wrapper;
+}
+
+function createRemoveButton(handler, label = 'Remove') {
+   const button = createElement('button', {
+      className: 'editor-remove',
+      text: label,
+      attrs: { type: 'button' }
+   });
+   button.addEventListener('click', handler);
+   return button;
+}
+
+function collectEditorData(form) {
+   const base = window.cvData ? cloneData(window.cvData) : {};
+
+   const summary = readSummary(form);
+   if (summary.present) {
+      base.summary = summary.value;
+   }
+
+   const skills = readSkills(form);
+   if (skills.present) {
+      base.skills = skills.value;
+   }
+
+   const experiences = readExperiences(form);
+   if (experiences.present) {
+      base.experiences = experiences.value;
+   }
+
+   const certifications = readCertifications(form);
+   if (certifications.present) {
+      base.certifications = certifications.value;
+   }
+
+   const education = readEducation(form);
+   if (education.present) {
+      base.education = education.value;
+   }
+
+   const languages = readLanguages(form);
+   if (languages.present) {
+      base.languages = languages.value;
+   }
+
+   return base;
+}
+
+function readSummary(form) {
+   const textarea = form.querySelector('textarea[name="summary"]');
+   if (!textarea) {
+      return { present: false, value: null };
+   }
+   return { present: true, value: textarea.value.trim() };
+}
+
+function readSkills(form) {
+   const container = form.querySelector('[data-collection="skills"]');
+   if (!container) {
+      return { present: false, value: null };
+   }
+
+   const value = Array.from(form.querySelectorAll('.skill-editor')).map((node, index) => {
+      const category = getInputValue(node, '.skill-category');
+      const items = splitLines(getTextValue(node, '.skill-items'));
+      const ratingRaw = getInputValue(node, '.skill-rating');
+      const rating = ratingRaw === '' ? 0 : Number(ratingRaw);
+      if (ratingRaw !== '' && (!Number.isFinite(rating) || rating < 0)) {
+         throw new Error(`Skill #${index + 1} rating must be zero or a positive number`);
+      }
+
+      if (!category && !items.length && ratingRaw === '') {
+         return null;
+      }
+
+      return {
+         category,
+         items,
+         rating
+      };
+   }).filter(Boolean);
+
+   return { present: true, value };
+}
+
+function readExperiences(form) {
+   const container = form.querySelector('[data-collection="experiences"]');
+   if (!container) {
+      return { present: false, value: null };
+   }
+
+   const value = Array.from(form.querySelectorAll('.experience-editor'))
+      .map((node, index) => {
+         const title = getInputValue(node, '.experience-title');
+         const employmentType = getInputValue(node, '.experience-employmentType');
+         const company = getInputValue(node, '.experience-company');
+         const dateLabel = getInputValue(node, '.experience-dateLabel');
+         const location = getInputValue(node, '.experience-location');
+
+         const sections = Array.from(node.querySelectorAll('.experience-section-editor'))
+            .map((sectionNode, sectionIndex) => {
+               const heading = getInputValue(sectionNode, '.experience-section-heading');
+               const itemsText = getTextValue(sectionNode, '.experience-section-items');
+               const items = splitLines(itemsText);
+
+               if (!heading && !items.length) {
+                  return null;
+               }
+               if (!items.length) {
+                  throw new Error(`Experience #${index + 1} section #${sectionIndex + 1} must include at least one item`);
+               }
+
+               return {
+                  heading: heading || undefined,
+                  items
+               };
+            })
+            .filter(Boolean);
+
+         const hasTopLevelFields = [title, employmentType, company, dateLabel, location].some(Boolean);
+         if (!hasTopLevelFields && !sections.length) {
+            return null;
+         }
+
+         return {
+            title,
+            employmentType: employmentType || undefined,
+            company: company || undefined,
+            dateLabel: dateLabel || undefined,
+            location: location || undefined,
+            sections
+         };
+      })
+      .filter(Boolean);
+
+   return { present: true, value };
+}
+
+function readCertifications(form) {
+   const container = form.querySelector('[data-collection="certifications"]');
+   if (!container) {
+      return { present: false, value: null };
+   }
+
+   const value = Array.from(form.querySelectorAll('.certification-editor'))
+      .map((node) => {
+         const title = getInputValue(node, '.certification-title');
+         const issuer = getInputValue(node, '.certification-issuer');
+         const date = getInputValue(node, '.certification-date');
+
+         if (!title && !issuer && !date) {
+            return null;
+         }
+
+         return {
+            title,
+            issuer: issuer || undefined,
+            date: date || undefined
+         };
+      })
+      .filter(Boolean);
+
+   return { present: true, value };
+}
+
+function readEducation(form) {
+   const container = form.querySelector('[data-collection="education"]');
+   if (!container) {
+      return { present: false, value: null };
+   }
+
+   const value = Array.from(form.querySelectorAll('.education-editor'))
+      .map((node) => {
+         const institution = getInputValue(node, '.education-institution');
+         const degree = getInputValue(node, '.education-degree');
+         const dates = getInputValue(node, '.education-dates');
+         const location = getInputValue(node, '.education-location');
+
+         if (!institution && !degree && !dates && !location) {
+            return null;
+         }
+
+         return {
+            institution,
+            degree: degree || undefined,
+            dates: dates || undefined,
+            location: location || undefined
+         };
+      })
+      .filter(Boolean);
+
+   return { present: true, value };
+}
+
+function readLanguages(form) {
+   const textarea = form.querySelector('.editor-languages');
+   if (!textarea) {
+      return { present: false, value: null };
+   }
+   return { present: true, value: splitLines(textarea.value) };
+}
+
+function getInputValue(root, selector) {
+   const node = root.querySelector(selector);
+   return node && 'value' in node ? node.value.trim() : '';
+}
+
+function getTextValue(root, selector) {
+   const node = root.querySelector(selector);
+   return node && 'value' in node ? node.value : '';
+}
+
+function splitLines(text) {
+   if (!text) {
+      return [];
+   }
+   return text
+      .split(/\r?\n/)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
 }
 
 function handleEditorSave(panel) {
-   const textarea = panel.querySelector('#cv-editor-text');
+   const form = panel.querySelector('#cv-editor-form');
    const message = panel.querySelector('#editor-message');
 
    let parsed;
    try {
-      parsed = JSON.parse(textarea.value);
+      if (!form) {
+         throw new Error('Editor form not found');
+      }
+      parsed = collectEditorData(form);
       validateCvData(parsed);
    } catch (error) {
-      showEditorMessage(message, error.message || 'Invalid JSON', true);
+      showEditorMessage(message, error.message || 'Unable to save changes', true);
       return;
    }
 
