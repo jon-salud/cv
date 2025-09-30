@@ -19,18 +19,15 @@ const CONTACT_ICONS = {
 const RATING_SYMBOL = '🔷';
 
 function myFunction() {
-   var element = document.body;
-   element.classList.toggle('dark-mode');
+   document.body.classList.toggle('dark-mode');
 }
 
 async function loadCvData() {
-   const response = await fetch(CV_DATA_PATH);
+   const response = await fetch(CV_DATA_PATH, { cache: 'no-cache' });
    if (!response.ok) {
-      throw new Error('Unable to load CV data');
+      throw new Error(`HTTP ${response.status} fetching ${CV_DATA_PATH}`);
    }
-   const data = await response.json();
-   window.cvData = data;
-   return data;
+   return response.json();
 }
 
 function renderCv(data) {
@@ -49,6 +46,50 @@ function renderCv(data) {
    appendSection(root, 'EDUCATION', () => createEducation(data.education));
    appendSection(root, 'LANGUAGES', () => createLanguages(data.languages));
    appendSection(root, 'REFERENCES', () => createReferences(data.references));
+}
+
+function renderError(message) {
+   const root = document.getElementById('cv-root');
+   if (!root) {
+      return;
+   }
+
+   root.innerHTML = '';
+   const container = createElement('div', {
+      style: {
+         padding: '16pt',
+         border: '1px solid #ff6b6b',
+         backgroundColor: 'rgba(255, 107, 107, 0.1)',
+         borderRadius: '6px'
+      }
+   });
+
+   const heading = createElement('h2', {
+      text: 'Unable to load CV content',
+      style: {
+         paddingBottom: '8pt'
+      }
+   });
+
+   const detail = createElement('p', {
+      text: message,
+      style: {
+         paddingBottom: '6pt'
+      }
+   });
+
+   const tip = createElement('p', {
+      text: 'Tip: If you are viewing this file locally, run it through a local web server so the browser can fetch cv-data.json.',
+      style: {
+         fontStyle: 'italic',
+         fontSize: '11pt'
+      }
+   });
+
+   container.appendChild(heading);
+   container.appendChild(detail);
+   container.appendChild(tip);
+   root.appendChild(container);
 }
 
 function buildHeader(profile = {}) {
@@ -242,39 +283,39 @@ function createExperienceSection(experiences = []) {
    return container;
 }
 
-function createExperienceEntry(experience) {
+function createExperienceEntry(experience = {}) {
    const fragment = document.createDocumentFragment();
    const headerWrapper = document.createElement('div');
-   const titleParts = [];
+   const jobHeading = createElement('h2', { className: 'job' });
+
+   const headingParts = [];
 
    if (experience.title) {
-      titleParts.push(experience.title);
-   }
-   if (experience.employmentType) {
-      titleParts[titleParts.length - 1] += ` (${experience.employmentType})`;
-   }
-
-   const jobHeading = createElement('h2', { className: 'job' });
-   if (titleParts.length) {
-      jobHeading.appendChild(document.createTextNode(titleParts[0]));
-      jobHeading.appendChild(document.createTextNode(' | '));
+      let titleText = experience.title;
+      if (experience.employmentType) {
+         titleText += ` (${experience.employmentType})`;
+      }
+      headingParts.push(document.createTextNode(titleText));
    }
 
    if (experience.company) {
-      const company = createElement('i', { text: `${experience.company} ` });
-      jobHeading.appendChild(company);
-      jobHeading.appendChild(document.createTextNode('| '));
+      headingParts.push(createElement('i', { text: experience.company }));
    }
 
    if (experience.dateLabel) {
-      const dateSpan = createElement('span', { className: 's2', text: experience.dateLabel });
-      jobHeading.appendChild(dateSpan);
+      headingParts.push(createElement('span', { className: 's2', text: experience.dateLabel }));
    }
 
    if (experience.location) {
-      const locationSpan = createElement('span', { text: ` | ${experience.location} ` });
-      jobHeading.appendChild(locationSpan);
+      headingParts.push(createElement('span', { className: 'p', text: experience.location }));
    }
+
+   headingParts.forEach((node, index) => {
+      if (index > 0) {
+         jobHeading.appendChild(document.createTextNode(' | '));
+      }
+      jobHeading.appendChild(node);
+   });
 
    headerWrapper.appendChild(jobHeading);
    fragment.appendChild(headerWrapper);
@@ -298,9 +339,8 @@ function createExperienceSectionContent(section = {}) {
    }
 
    (section.items || []).forEach((item) => {
-      const className = section.heading && section.heading.toLowerCase().includes('highlight')
-         ? 'sub-job-items'
-         : 'job-items';
+      const isHighlight = typeof section.heading === 'string' && section.heading.toLowerCase().includes('highlight');
+      const className = isHighlight ? 'sub-job-items' : 'job-items';
       const bullet = createElement('p', { className });
       bullet.textContent = `- ${item}`;
       fragment.appendChild(bullet);
@@ -343,7 +383,7 @@ function createEducation(education = []) {
    education.forEach((record) => {
       const container = document.createElement('div');
       const institution = createElement('h2', {
-         text: `${record.institution}, ${record.location}`,
+         text: [record.institution, record.location].filter(Boolean).join(', '),
          style: {
             paddingTop: '4pt',
             paddingLeft: '6pt',
@@ -371,19 +411,23 @@ function createEducation(education = []) {
             textAlign: 'left'
          }
       });
-      const location = createElement('p', {
-         text: record.location || '',
-         style: {
-            paddingLeft: '10pt',
-            textIndent: '0pt',
-            textAlign: 'left'
-         }
-      });
+      const location = record.location
+         ? createElement('p', {
+              text: record.location,
+              style: {
+                 paddingLeft: '10pt',
+                 textIndent: '0pt',
+                 textAlign: 'left'
+              }
+           })
+         : null;
 
       container.appendChild(institution);
       container.appendChild(degree);
       container.appendChild(dates);
-      container.appendChild(location);
+      if (location) {
+         container.appendChild(location);
+      }
       wrapper.appendChild(container);
    });
 
@@ -391,6 +435,10 @@ function createEducation(education = []) {
 }
 
 function createLanguages(languages = []) {
+   if (!languages.length) {
+      return null;
+   }
+
    return createElement('p', {
       text: languages.join(', '),
       style: {
@@ -403,6 +451,10 @@ function createLanguages(languages = []) {
 }
 
 function createReferences(text = '') {
+   if (!text) {
+      return null;
+   }
+
    return createElement('p', {
       text,
       style: {
@@ -466,5 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch((error) => {
          console.error('Failed to load CV data', error);
+         renderError('We could not load the CV data file.');
       });
 });
