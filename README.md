@@ -32,3 +32,13 @@ README.md   # this file
 2. Refresh the browser to see changes reflected immediately.
 
 No frameworks or build tooling are required; everything runs in the browser.
+
+## Tests
+
+Basic validation checks ensure the JSON data stays well-formed:
+
+```bash
+npm test
+```
+
+The test suite verifies the presence of required sections (profile, skills, experiences, etc.) and ensures that arrays and strings contain useful data.
