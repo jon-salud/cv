@@ -152,6 +152,117 @@ body.dark-mode .experience-item {
     border-color: rgba(0, 0, 0, 0.2);
 }
 
+.editor-controls {
+    margin-top: 20pt;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.editor-controls .btn-primary {
+    padding: 6pt 12pt;
+    border-radius: 4px;
+    border: 1px solid #5c9dff;
+    background: transparent;
+    color: #5c9dff;
+    font-family: monospace;
+    font-size: 11pt;
+    cursor: pointer;
+}
+
+.editor-controls .btn-primary:hover,
+.editor-controls .btn-primary:focus {
+    background: rgba(92, 157, 255, 0.1);
+}
+
+.editor-panel {
+    margin-top: 12pt;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 12pt;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.editor-panel h2 {
+    margin-bottom: 8pt;
+}
+
+.editor-panel textarea {
+    width: 100%;
+    min-height: 200px;
+    font-family: monospace;
+    font-size: 10pt;
+    padding: 8pt;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(0, 0, 0, 0.4);
+    color: inherit;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8pt;
+    margin-top: 10pt;
+}
+
+.editor-actions button {
+    padding: 6pt 12pt;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-family: monospace;
+}
+
+.editor-actions button:hover,
+.editor-actions button:focus {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.editor-message {
+    margin-top: 8pt;
+    font-size: 10pt;
+}
+
+.editor-message.error {
+    color: #ff6b6b;
+}
+
+.editor-message.success {
+    color: #55d6a3;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.dark-mode .editor-panel {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .editor-panel textarea {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: rgb(46, 46, 46);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .editor-controls .btn-primary {
+    border-color: rgb(46, 46, 46);
+    color: rgb(46, 46, 46);
+}
+
+.dark-mode .editor-controls .btn-primary:hover,
+.dark-mode .editor-controls .btn-primary:focus {
+    background: rgba(46, 46, 46, 0.1);
+}
+
+.dark-mode .editor-actions button {
+    border-color: rgba(0, 0, 0, 0.2);
+    color: rgb(46, 46, 46);
+}
 .job-items {
     padding-left: 50px;
     text-indent: -1.3em;

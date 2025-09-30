@@ -18,6 +18,16 @@ const CONTACT_ICONS = {
 };
 const RATING_SYMBOL = '🔷';
 
+const EDIT_CREDENTIALS = {
+   username: 'admin',
+   password: 'changeme'
+};
+
+const STORAGE_KEYS = {
+   override: 'cvDataOverride',
+   auth: 'cvEditorAuth'
+};
+
 function myFunction() {
    document.body.classList.toggle('dark-mode');
 }
@@ -27,7 +37,11 @@ async function loadCvData() {
    if (!response.ok) {
       throw new Error(`HTTP ${response.status} fetching ${CV_DATA_PATH}`);
    }
-   return response.json();
+   const remoteData = await response.json();
+   window.originalCvData = cloneData(remoteData);
+
+   const stored = getStoredOverride();
+   return stored ? stored : cloneData(remoteData);
 }
 
 function renderCv(data) {
@@ -36,16 +50,20 @@ function renderCv(data) {
       return;
    }
 
-   root.innerHTML = '';
-   root.appendChild(buildHeader(data.profile));
+   window.cvData = cloneData(data);
 
-   appendSection(root, 'WHO AM I', () => createSummary(data.summary));
-   appendSection(root, 'SKILLS', () => createSkills(data.skills));
-   appendSection(root, 'PROFESSIONAL EXPERIENCES', () => createExperienceSection(data.experiences));
-   appendSection(root, 'CERTIFICATIONS', () => createCertifications(data.certifications));
-   appendSection(root, 'EDUCATION', () => createEducation(data.education));
-   appendSection(root, 'LANGUAGES', () => createLanguages(data.languages));
-   appendSection(root, 'REFERENCES', () => createReferences(data.references));
+   root.innerHTML = '';
+   root.appendChild(buildHeader(window.cvData.profile));
+
+   appendSection(root, 'WHO AM I', () => createSummary(window.cvData.summary));
+   appendSection(root, 'SKILLS', () => createSkills(window.cvData.skills));
+   appendSection(root, 'PROFESSIONAL EXPERIENCES', () => createExperienceSection(window.cvData.experiences));
+   appendSection(root, 'CERTIFICATIONS', () => createCertifications(window.cvData.certifications));
+   appendSection(root, 'EDUCATION', () => createEducation(window.cvData.education));
+   appendSection(root, 'LANGUAGES', () => createLanguages(window.cvData.languages));
+   appendSection(root, 'REFERENCES', () => createReferences(window.cvData.references));
+
+   renderEditorControls(root);
 
    initExperienceControls();
 }
@@ -504,6 +522,200 @@ function createReferences(text = '') {
          paddingLeft: '10pt',
          textIndent: '0pt',
          textAlign: 'left'
+      }
+   });
+}
+
+function renderEditorControls(root) {
+   const container = createElement('div', { className: 'editor-controls' });
+   const editButton = createElement('button', {
+      className: 'btn-primary',
+      text: 'Edit CV'
+   });
+
+   const editorPanel = createEditorPanel();
+
+   editButton.addEventListener('click', () => {
+      handleEditClick(editorPanel);
+   });
+
+   container.appendChild(editButton);
+   root.appendChild(container);
+   root.appendChild(editorPanel);
+}
+
+function createEditorPanel() {
+   const panel = createElement('div', {
+      className: 'editor-panel hidden',
+      attrs: { id: 'cv-editor-panel' }
+   });
+
+   const heading = createElement('h2', { text: 'Edit CV Data' });
+   const textarea = createElement('textarea', {
+      attrs: { id: 'cv-editor-text', spellcheck: 'false' }
+   });
+   const actions = createElement('div', { className: 'editor-actions' });
+   const save = createElement('button', { text: 'Save changes' });
+   const reset = createElement('button', { text: 'Reset to defaults' });
+   const cancel = createElement('button', { text: 'Cancel' });
+   const message = createElement('div', {
+      className: 'editor-message',
+      attrs: { id: 'editor-message' }
+   });
+
+   save.addEventListener('click', () => handleEditorSave(panel));
+   reset.addEventListener('click', () => handleEditorReset(panel));
+   cancel.addEventListener('click', () => hideEditorPanel(panel));
+
+   actions.appendChild(save);
+   actions.appendChild(reset);
+   actions.appendChild(cancel);
+
+   panel.appendChild(heading);
+   panel.appendChild(textarea);
+   panel.appendChild(actions);
+   panel.appendChild(message);
+
+   return panel;
+}
+
+function handleEditClick(panel) {
+   if (!isEditorAuthorized() && !authorizeEditor()) {
+      return;
+   }
+
+   populateEditorPanel(panel);
+   panel.classList.remove('hidden');
+}
+
+function populateEditorPanel(panel) {
+   const textarea = panel.querySelector('#cv-editor-text');
+   const message = panel.querySelector('#editor-message');
+   textarea.value = JSON.stringify(window.cvData, null, 2);
+   if (message) {
+      message.textContent = '';
+      message.classList.remove('error', 'success');
+   }
+}
+
+function handleEditorSave(panel) {
+   const textarea = panel.querySelector('#cv-editor-text');
+   const message = panel.querySelector('#editor-message');
+
+   let parsed;
+   try {
+      parsed = JSON.parse(textarea.value);
+      validateCvData(parsed);
+   } catch (error) {
+      showEditorMessage(message, error.message || 'Invalid JSON', true);
+      return;
+   }
+
+   localStorage.setItem(STORAGE_KEYS.override, JSON.stringify(parsed));
+   hideEditorPanel(panel);
+   renderCv(parsed);
+}
+
+function handleEditorReset(panel) {
+   localStorage.removeItem(STORAGE_KEYS.override);
+   hideEditorPanel(panel);
+   const base = window.originalCvData ? cloneData(window.originalCvData) : window.cvData;
+   renderCv(base);
+}
+
+function hideEditorPanel(panel) {
+   panel.classList.add('hidden');
+}
+
+function showEditorMessage(node, text, isError) {
+   if (!node) {
+      return;
+   }
+   node.textContent = text;
+   node.classList.remove('error', 'success');
+   node.classList.add(isError ? 'error' : 'success');
+}
+
+function isEditorAuthorized() {
+   return sessionStorage.getItem(STORAGE_KEYS.auth) === 'true';
+}
+
+function authorizeEditor() {
+   const username = window.prompt('Enter editor username');
+   if (username === null) {
+      return false;
+   }
+   const password = window.prompt('Enter editor password');
+   if (password === null) {
+      return false;
+   }
+
+   if (username === EDIT_CREDENTIALS.username && password === EDIT_CREDENTIALS.password) {
+      sessionStorage.setItem(STORAGE_KEYS.auth, 'true');
+      return true;
+   }
+
+   window.alert('Invalid credentials');
+   return false;
+}
+
+function cloneData(data) {
+   return JSON.parse(JSON.stringify(data));
+}
+
+function getStoredOverride() {
+   const raw = localStorage.getItem(STORAGE_KEYS.override);
+   if (!raw) {
+      return null;
+   }
+   try {
+      const parsed = JSON.parse(raw);
+      validateCvData(parsed);
+      return parsed;
+   } catch (error) {
+      console.warn('Invalid stored CV override removed:', error);
+      localStorage.removeItem(STORAGE_KEYS.override);
+      return null;
+   }
+}
+
+function validateCvData(data) {
+   if (typeof data !== 'object' || data === null) {
+      throw new Error('CV data must be an object');
+   }
+
+   const requiredKeys = ['profile', 'summary', 'skills', 'experiences'];
+   requiredKeys.forEach((key) => {
+      if (!(key in data)) {
+         throw new Error(`Missing key: ${key}`);
+      }
+   });
+
+   if (!data.profile || typeof data.profile !== 'object') {
+      throw new Error('Profile must be an object');
+   }
+   if (!Array.isArray(data.profile.contacts) || !data.profile.contacts.length) {
+      throw new Error('Profile contacts must include entries');
+   }
+   if (typeof data.summary !== 'string' || !data.summary.trim()) {
+      throw new Error('Summary must be a non-empty string');
+   }
+   if (!Array.isArray(data.skills) || !data.skills.length) {
+      throw new Error('Skills must include entries');
+   }
+   if (!Array.isArray(data.experiences) || !data.experiences.length) {
+      throw new Error('Experiences must include entries');
+   }
+
+   data.experiences.forEach((experience, index) => {
+      if (!experience || typeof experience !== 'object') {
+         throw new Error(`Experience #${index + 1} must be an object`);
+      }
+      if (!experience.title) {
+         throw new Error(`Experience #${index + 1} is missing a title`);
+      }
+      if (!Array.isArray(experience.sections) || !experience.sections.length) {
+         throw new Error(`Experience #${index + 1} must include sections`);
       }
    });
 }
