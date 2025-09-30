@@ -1,4 +1,4 @@
-const CV_DATA_PATH = 'cv-data.json';
+const CV_DATA_PATH = 'assets/data/cv-data.json';
 const CONTACT_ICONS = {
    linkedin: {
       src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA8klEQVQYlXWPsUoDYRCEv/39STyUJGCRQsFCohAsBMHS1iaFiO+gFj6AWNjZ+AAWgq2IhdjoA4iCYCOIiCFoKsVI0OCReCE3NnoWXhaG2VlmYJb5HV1ObKreDFWQRD/46qsmP9rkP78YLgS802fs6U3j7S7BVJF7gUmYGYpjnMANGD3niK28pQeA4zUqp7dU9s5ZXShzdnLDUqfLYDHHy9EKi77WoAQQ9cg0Q0ZqDUr7F4wNZQlj4e6emV4/YNel9Vme5fBxm9GrDWYAruvMpRrzAa2MJ8p6IoBWh1yqMe1pr99V/0lKNN6SzB/pR5klZ74Ba2xlwAyOEe4AAAAASUVORK5CYIIA',
@@ -284,8 +284,8 @@ function createExperienceSection(experiences = []) {
 }
 
 function createExperienceEntry(experience = {}) {
-   const fragment = document.createDocumentFragment();
-   const headerWrapper = document.createElement('div');
+   const details = createElement('details', { className: 'experience-item' });
+   const summary = createElement('summary', { className: 'experience-summary' });
    const jobHeading = createElement('h2', { className: 'job' });
 
    const headingParts = [];
@@ -317,16 +317,19 @@ function createExperienceEntry(experience = {}) {
       jobHeading.appendChild(node);
    });
 
-   headerWrapper.appendChild(jobHeading);
-   fragment.appendChild(headerWrapper);
+   summary.appendChild(jobHeading);
+   details.appendChild(summary);
+
+   const contentWrapper = createElement('div', { className: 'experience-content' });
 
    (experience.sections || []).forEach((section) => {
       const sectionContainer = document.createElement('div');
       sectionContainer.appendChild(createExperienceSectionContent(section));
-      fragment.appendChild(sectionContainer);
+      contentWrapper.appendChild(sectionContainer);
    });
 
-   return fragment;
+   details.appendChild(contentWrapper);
+   return details;
 }
 
 function createExperienceSectionContent(section = {}) {
