@@ -92,6 +92,33 @@ h2 {
     text-align: left;
 }
 
+.experience-item {
+    margin-bottom: 10pt;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.experience-summary {
+    cursor: pointer;
+    padding: 6pt 10pt;
+    display: flex;
+    align-items: center;
+}
+
+.experience-content {
+    padding: 6pt 0 6pt 0;
+}
+
+.experience-content > div {
+    padding-left: 6pt;
+    padding-right: 6pt;
+}
+
+body.dark-mode .experience-item {
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
 .job-items {
     padding-left: 50px;
     text-indent: -1.3em;

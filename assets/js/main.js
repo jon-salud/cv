@@ -284,8 +284,8 @@ function createExperienceSection(experiences = []) {
 }
 
 function createExperienceEntry(experience = {}) {
-   const fragment = document.createDocumentFragment();
-   const headerWrapper = document.createElement('div');
+   const details = createElement('details', { className: 'experience-item' });
+   const summary = createElement('summary', { className: 'experience-summary' });
    const jobHeading = createElement('h2', { className: 'job' });
 
    const headingParts = [];
@@ -317,16 +317,19 @@ function createExperienceEntry(experience = {}) {
       jobHeading.appendChild(node);
    });
 
-   headerWrapper.appendChild(jobHeading);
-   fragment.appendChild(headerWrapper);
+   summary.appendChild(jobHeading);
+   details.appendChild(summary);
+
+   const contentWrapper = createElement('div', { className: 'experience-content' });
 
    (experience.sections || []).forEach((section) => {
       const sectionContainer = document.createElement('div');
       sectionContainer.appendChild(createExperienceSectionContent(section));
-      fragment.appendChild(sectionContainer);
+      contentWrapper.appendChild(sectionContainer);
    });
 
-   return fragment;
+   details.appendChild(contentWrapper);
+   return details;
 }
 
 function createExperienceSectionContent(section = {}) {
