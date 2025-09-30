@@ -127,3 +127,15 @@ Jun 1986 – Mar 1991
 ## REFERENCES
 
 Available upon request
+
+## Project Structure
+
+- `index.html` – Entry point that composes the CV and loads assets.
+- `assets/css` – Stylesheets (currently `main.css`).
+- `assets/js` – Front-end scripts (`main.js`).
+- `assets/data` – Structured data powering the CV (`cv-data.json`).
+- `assets/images` – Static images and favicons.
+
+### Local Development
+
+Because the CV loads JSON data with `fetch`, run a lightweight web server locally (for example `python3 -m http.server`) and browse to `http://localhost:8000/` rather than opening the HTML file directly.
